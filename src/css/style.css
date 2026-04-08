@@ -128,7 +128,47 @@ h1 {
   font-size: 0.9rem;
   font-weight: 600;
 }
+/* Contenedor de controles (Search & Sort) */
+.controls {
+  display: flex;
+  gap: 1rem;
+  margin: 20px 0;
+  flex-wrap: wrap; /* Para que en móviles se ponga uno abajo del otro */
+}
 
+/* Estilo para el input y el select */
+#search-input, 
+#sort-select {
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #334155; /* Color oscuro acorde a tu diseño */
+  background-color: #1e293b; /* Fondo oscuro que combina con tus tarjetas */
+  color: white;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+#search-input {
+  flex: 1; /* El buscador toma el espacio disponible */
+  min-width: 200px;
+}
+
+#sort-select {
+  cursor: pointer;
+  min-width: 180px;
+}
+
+/* Efecto al hacer foco */
+#search-input:focus, 
+#sort-select:focus {
+  border-color: #3b82f6; /* Azul vibrante para resaltar el foco */
+}
+
+/* Ajuste para que el título no quede pegado a los controles */
+h1 {
+  margin-bottom: 10px;
+}
 /* 5. RESPONSIVE */
 @media (max-width: 1024px) {
   h1 { font-size: 32px; }
