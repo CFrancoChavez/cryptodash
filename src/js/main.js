@@ -1,10 +1,38 @@
-import { getTopCoins } from './cryptoProvider.js';
+import { getTopCoins, getGlobalStats } from './cryptoProvider.js';
 import { cryptoCardTemplate } from './cryptoCardTemplate.js';
 import '../css/style.css';
 
 // Variable global para mantener los datos de la API disponibles para filtrar/ordenar
 let allCoins = [];
 
+// Función para mostrar los datos globales en el header
+async function displayGlobalStats() {
+  const tickerContainer = document.querySelector('#global-stats');
+  
+  try {
+    const stats = await getGlobalStats();
+    console.log("Stats procesados para UI:", stats);
+
+    if (stats) {
+      tickerContainer.innerHTML = `
+        <div class="ticker-item">
+          <strong>Market Cap:</strong> $${Math.round(stats.totalMarketCap).toLocaleString()}
+        </div>
+        <div class="ticker-item">
+          <strong>24h Vol:</strong> $${Math.round(stats.totalVolume).toLocaleString()}
+        </div>
+        <div class="ticker-item ${stats.marketCapChange >= 0 ? 'up' : 'down'}">
+          <strong>24h Change:</strong> ${stats.marketCapChange.toFixed(2)}%
+        </div>
+      `;
+    } else {
+      tickerContainer.innerHTML = `<p>Global data currently unavailable</p>`;
+    }
+  } catch (err) {
+    console.error("Error en displayGlobalStats:", err);
+    tickerContainer.innerHTML = `<p>Error loading ticker</p>`;
+  }
+}
 async function displayCoins(coinsToRender) {
   const container = document.querySelector('#crypto-list');
   
@@ -55,6 +83,8 @@ function handleControls() {
 
 // Función de inicialización
 async function init() {
+
+  await displayGlobalStats();
   // Cargamos los datos de la API una sola vez
   allCoins = await getTopCoins();
   

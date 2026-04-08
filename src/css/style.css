@@ -169,6 +169,51 @@ h1 {
 h1 {
   margin-bottom: 10px;
 }
+/* Ticker Global Superior */
+.global-ticker {
+  background-color: #0f172a; /* Azul muy oscuro para el fondo */
+  color: #94a3b8; /* Gris azulado para el texto secundario */
+  padding: 10px 20px;
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  border-bottom: 1px solid #1e293b;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Estilo para cada dato individual */
+.ticker-item {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.ticker-item strong {
+  color: #f8fafc; /* Blanco hueso para resaltar las etiquetas */
+  margin-right: 8px;
+  font-weight: 600;
+}
+
+/* Indicadores de tendencia (Verde/Rojo) */
+.ticker-item.up {
+  color: #10b981; /* Verde esmeralda */
+}
+
+.ticker-item.down {
+  color: #ef4444; /* Rojo coral */
+}
+
+/* Ajuste responsivo para pantallas pequeñas */
+@media (max-width: 768px) {
+  .global-ticker {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+}
 /* 5. RESPONSIVE */
 @media (max-width: 1024px) {
   h1 { font-size: 32px; }

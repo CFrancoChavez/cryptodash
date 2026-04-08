@@ -1,5 +1,8 @@
 const BASE_URL = 'https://api.coingecko.com/api/v3';
 
+/**
+ * Obtiene las criptomonedas con mayor capitalización de mercado.
+ */
 export async function getTopCoins(currency = 'usd', limit = 10) {
   try {
     const response = await fetch(
@@ -13,5 +16,39 @@ export async function getTopCoins(currency = 'usd', limit = 10) {
   } catch (error) {
     console.error('CryptoProvider Error:', error);
     return [];
+  }
+}
+
+/**
+ * Obtiene estadísticas globales del mercado de criptomonedas.
+ */
+export async function getGlobalStats() {
+  try {
+    console.log("Intentando llamar a la API Global...");
+    const response = await fetch('https://api.coingecko.com/api/v3/global');
+    
+    if (!response.ok) {
+      console.error('Respuesta de red no fue OK:', response.status);
+      return null;
+    }
+    
+    const json = await response.json();
+    console.log('Datos recibidos de la API Global:', json);
+    
+    // Verificamos que la estructura sea la esperada
+    if (!json.data) {
+      console.error('La API no devolvió el objeto "data"');
+      return null;
+    }
+
+    const data = json.data;
+    return {
+      totalMarketCap: data.total_market_cap.usd,
+      totalVolume: data.total_volume.usd,
+      marketCapChange: data.market_cap_change_percentage_24h_usd
+    };
+  } catch (error) {
+    console.error('Error crítico en getGlobalStats:', error);
+    return null;
   }
 }
