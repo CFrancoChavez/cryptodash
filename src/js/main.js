@@ -1,9 +1,11 @@
-import { getTopCoins, getGlobalStats } from './cryptoProvider.js';
+import { getTopCoins, getGlobalStats, getExchangeRate } from './cryptoProvider.js';
 import { cryptoCardTemplate } from './cryptoCardTemplate.js';
 import { toggleFavorite } from './storage.mjs';
 import '../css/style.css';
 
-// Variable global para mantener los datos de la API disponibles para filtrar/ordenar
+// 1. VARIABLES GLOBALES (Declaradas solo una vez al inicio)
+let currentCurrency = 'usd';
+let exchangeRate = 1;
 let allCoins = [];
 
 // Función para mostrar los datos globales en el header
@@ -12,15 +14,20 @@ async function displayGlobalStats() {
   
   try {
     const stats = await getGlobalStats();
-    console.log("Stats procesados para UI:", stats);
-
+    
     if (stats) {
+      // Ajustamos los precios del ticker también si es ARS
+      const isArs = currentCurrency === 'ars';
+      const mCap = isArs ? stats.totalMarketCap * exchangeRate : stats.totalMarketCap;
+      const vol = isArs ? stats.totalVolume * exchangeRate : stats.totalVolume;
+      const symbol = isArs ? 'ARS $' : 'USD $';
+
       tickerContainer.innerHTML = `
         <div class="ticker-item">
-          <strong>Market Cap:</strong> $${Math.round(stats.totalMarketCap).toLocaleString()}
+          <strong>Market Cap:</strong> ${symbol}${Math.round(mCap).toLocaleString()}
         </div>
         <div class="ticker-item">
-          <strong>24h Vol:</strong> $${Math.round(stats.totalVolume).toLocaleString()}
+          <strong>24h Vol:</strong> ${symbol}${Math.round(vol).toLocaleString()}
         </div>
         <div class="ticker-item ${stats.marketCapChange >= 0 ? 'up' : 'down'}">
           <strong>24h Change:</strong> ${stats.marketCapChange.toFixed(2)}%
@@ -34,23 +41,42 @@ async function displayGlobalStats() {
     tickerContainer.innerHTML = `<p>Error loading ticker</p>`;
   }
 }
+
+// async function displayCoins(coinsToRender) {
+//   const container = document.querySelector('#crypto-list');
+//   container.innerHTML = '';
+  
+//   if (coinsToRender.length === 0) {
+//     container.innerHTML = '<p class="no-results">No coins found matching your search.</p>';
+//     return;
+//   }
+
+//   // CORRECCIÓN: Pasamos la moneda y el rate al template en cada iteración
+//   const htmlItems = coinsToRender.map(coin => 
+//     cryptoCardTemplate(coin, currentCurrency, exchangeRate)
+//   );
+  
+//   container.insertAdjacentHTML('beforeend', htmlItems.join(''));
+// }
 async function displayCoins(coinsToRender) {
   const container = document.querySelector('#crypto-list');
-  
-  // Limpiamos el contenedor
   container.innerHTML = '';
   
-  if (coinsToRender.length === 0) {
-    container.innerHTML = '<p class="no-results">No coins found matching your search.</p>';
+  // VALIDACIÓN DE SEGURIDAD: Si no es un array, lo convertimos en uno vacío
+  const data = Array.isArray(coinsToRender) ? coinsToRender : [];
+
+  if (data.length === 0) {
+    container.innerHTML = '<p class="no-results">No coins found or API unavailable. Please wait a moment.</p>';
     return;
   }
 
-  // Mapeamos los datos a la plantilla y los unimos en un solo string
-  const htmlItems = coinsToRender.map(coin => cryptoCardTemplate(coin));
+  const htmlItems = data.map(coin => 
+    cryptoCardTemplate(coin, currentCurrency, exchangeRate)
+  );
+  
   container.insertAdjacentHTML('beforeend', htmlItems.join(''));
 }
 
-// Nueva función para manejar la lógica de los controles (Search & Sort)
 function handleControls() {
   const searchInput = document.querySelector('#search-input');
   const sortSelect = document.querySelector('#sort-select');
@@ -59,13 +85,11 @@ function handleControls() {
     const searchTerm = searchInput.value.toLowerCase();
     const sortValue = sortSelect.value;
 
-    // 1. Filtrar sobre el array original
     let filtered = allCoins.filter(coin => 
       coin.name.toLowerCase().includes(searchTerm) || 
       coin.symbol.toLowerCase().includes(searchTerm)
     );
 
-    // 2. Ordenar el resultado
     filtered.sort((a, b) => {
       if (sortValue === 'market_cap_desc') return b.market_cap - a.market_cap;
       if (sortValue === 'market_cap_asc') return a.market_cap - b.market_cap;
@@ -74,43 +98,57 @@ function handleControls() {
       return 0;
     });
 
-    // Reutilizamos tu función original para mostrar los resultados procesados
     displayCoins(filtered);
   };
 
   searchInput.addEventListener('input', filterAndSort);
   sortSelect.addEventListener('change', filterAndSort);
 }
+
 function setupWatchlistEvents() {
   const container = document.querySelector('#crypto-list');
 
   container.addEventListener('click', (e) => {
-    // Usamos .closest para capturar el clic incluso si tocan el borde del botón
     const btn = e.target.closest('.favorite-btn');
     if (!btn) return;
 
-    // Buscamos el ID de la moneda en el contenedor padre (la tarjeta)
     const card = btn.closest('.crypto-card');
     const coinId = card.dataset.id;
 
-    // 1. Actualizamos LocalStorage
     toggleFavorite(coinId);
-
-    // 2. Actualizamos la interfaz visualmente
     btn.classList.toggle('active');
   });
 }
+
+// Cambié el nombre a setupCurrencySwitcher para que coincida con la lógica de inicialización
+async function handleCurrencyChange() {
+  const selector = document.querySelector('#currency-select');
+  
+  // Obtenemos el tipo de cambio de la API (Dólar Blue)
+  exchangeRate = await getExchangeRate();
+
+  selector.addEventListener('change', (e) => {
+    currentCurrency = e.target.value;
+    
+    // Al cambiar la moneda, refrescamos toda la UI
+    displayCoins(allCoins);
+    displayGlobalStats();
+  });
+}
+
 // Función de inicialización
 async function init() {
+  // 1. Primero configuramos el tipo de cambio y el selector
+  await handleCurrencyChange();
 
+  // 2. Cargamos datos globales y lista de monedas
   await displayGlobalStats();
-  // Cargamos los datos de la API una sola vez
   allCoins = await getTopCoins();
   
-  // Mostramos todas las monedas inicialmente
+  // 3. Render inicial
   displayCoins(allCoins);
   
-  // Activamos los escuchadores de eventos para búsqueda y orden
+  // 4. Activamos el resto de los listeners
   handleControls();
   setupWatchlistEvents();
 }
