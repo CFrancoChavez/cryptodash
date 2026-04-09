@@ -1,14 +1,19 @@
+import { isFavorite } from './storage.mjs';
+
 export function cryptoCardTemplate(coin) {
-  // Usamos clases de CSS que luego definiremos para que se vea pro
+  const favoriteClass = isFavorite(coin.id) ? 'active' : '';
+  
   return `
-    <div class="crypto-card">
-      <img src="${coin.image}" alt="${coin.name}" class="crypto-logo">
-      <div class="crypto-info">
-        <h3>${coin.name} <span>(${coin.symbol.toUpperCase()})</span></h3>
-        <p class="crypto-price">$${coin.current_price.toLocaleString()}</p>
-      </div>
-      <div class="crypto-stats">
-        <p class="${coin.price_change_percentage_24h >= 0 ? 'up' : 'down'}">
+    <div class="crypto-card" data-id="${coin.id}">
+      <button class="favorite-btn ${favoriteClass}" title="Watchlist">★</button>
+      
+      <img src="${coin.image}" alt="${coin.name}" class="coin-logo">
+      
+      <h3>${coin.name} <span class="symbol">(${coin.symbol.toUpperCase()})</span></h3>
+      
+      <div class="card-body">
+        <p class="price">$${coin.current_price.toLocaleString()}</p>
+        <p class="change ${coin.price_change_percentage_24h >= 0 ? 'up' : 'down'}">
           ${coin.price_change_percentage_24h.toFixed(2)}%
         </p>
       </div>

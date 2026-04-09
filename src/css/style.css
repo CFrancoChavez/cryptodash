@@ -72,17 +72,17 @@ h1 {
 }
 
 .crypto-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1.25rem;
+  position: relative; /* Necesario para que la estrella se ubique respecto a la tarjeta */
+  background-color: #1e293b;
+  border-radius: 12px;
+  padding: 1.5rem;
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: var(--shadow);
+  flex-direction: column;
+  align-items: center; /* Centra el contenido */
+  text-align: center;
+  transition: transform 0.2s;
+  border: 1px solid #334155;
 }
-
 .crypto-card:hover {
   transform: translateY(-4px);
   border-color: var(--accent-border);
@@ -205,7 +205,57 @@ h1 {
 .ticker-item.down {
   color: #ef4444; /* Rojo coral */
 }
+.crypto-card {
+  position: relative; /* Para posicionar la estrella */
+}
 
+.favorite-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #475569;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 5;
+  line-height: 1;
+  padding: 0;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.favorite-btn:hover {
+  transform: scale(1.2);
+}
+
+.favorite-btn.active {
+  color: #fbbf24; /* Dorado/Amarillo brillante */
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+}
+.coin-logo {
+  width: 50px !important;
+  height: 50px !important;
+  object-fit: contain;
+  margin-bottom: 1rem;
+}
+
+.crypto-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #f8fafc;
+}
+
+.symbol {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.price {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0.5rem 0;
+  color: #f1f5f9;
+}
 /* Ajuste responsivo para pantallas pequeñas */
 @media (max-width: 768px) {
   .global-ticker {

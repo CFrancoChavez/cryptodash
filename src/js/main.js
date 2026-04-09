@@ -1,5 +1,6 @@
 import { getTopCoins, getGlobalStats } from './cryptoProvider.js';
 import { cryptoCardTemplate } from './cryptoCardTemplate.js';
+import { toggleFavorite } from './storage.mjs';
 import '../css/style.css';
 
 // Variable global para mantener los datos de la API disponibles para filtrar/ordenar
@@ -80,7 +81,25 @@ function handleControls() {
   searchInput.addEventListener('input', filterAndSort);
   sortSelect.addEventListener('change', filterAndSort);
 }
+function setupWatchlistEvents() {
+  const container = document.querySelector('#crypto-list');
 
+  container.addEventListener('click', (e) => {
+    // Usamos .closest para capturar el clic incluso si tocan el borde del botón
+    const btn = e.target.closest('.favorite-btn');
+    if (!btn) return;
+
+    // Buscamos el ID de la moneda en el contenedor padre (la tarjeta)
+    const card = btn.closest('.crypto-card');
+    const coinId = card.dataset.id;
+
+    // 1. Actualizamos LocalStorage
+    toggleFavorite(coinId);
+
+    // 2. Actualizamos la interfaz visualmente
+    btn.classList.toggle('active');
+  });
+}
 // Función de inicialización
 async function init() {
 
@@ -93,6 +112,7 @@ async function init() {
   
   // Activamos los escuchadores de eventos para búsqueda y orden
   handleControls();
+  setupWatchlistEvents();
 }
 
 document.addEventListener('DOMContentLoaded', init);
