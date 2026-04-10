@@ -12,7 +12,7 @@ function renderCoinDetails(coin) {
   const headerInfo = document.querySelector('#coin-header-info');
 
   if (!coin) {
-    container.innerHTML = `<p class="error">No se pudieron cargar los detalles. Intente más tarde.</p>`;
+    container.innerHTML = `<p class="error">The details could not be loaded. Please try again later.</p>`;
     return;
   }
 
@@ -52,7 +52,7 @@ function renderCoinDetails(coin) {
     </div>
 
     <div class="detail-card description-section">
-      <h3>Acerca de ${coin.name}</h3>
+      <h3>About ${coin.name}</h3>
       <div class="description-text">
         ${coin.description.en || "No description available in English."}
       </div>
