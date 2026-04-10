@@ -108,7 +108,7 @@ function setupWatchlistEvents() {
     // Si clickeó en la tarjeta pero NO era el botón de favoritos
     if (card) {
       const coinId = card.dataset.id;
-      window.location.href = `details.html?id=${coinId}`;
+      window.location.href = `./details.html?id=${coinId}`;
     }
   });
 }
