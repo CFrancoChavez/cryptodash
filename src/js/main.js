@@ -114,21 +114,39 @@ function setupWatchlistEvents() {
 }
 
 // Cambié el nombre a setupCurrencySwitcher para que coincida con la lógica de inicialización
+// async function handleCurrencyChange() {
+//   const selector = document.querySelector('#currency-select');
+  
+//   // Obtenemos el tipo de cambio de la API (Dólar Blue)
+//   exchangeRate = await getExchangeRate();
+
+//   selector.addEventListener('change', (e) => {
+//     currentCurrency = e.target.value;
+    
+//     // Al cambiar la moneda, refrescamos toda la UI
+//     displayCoins(allCoins);
+//     displayGlobalStats();
+//   });
+// }
 async function handleCurrencyChange() {
   const selector = document.querySelector('#currency-select');
   
-  // Obtenemos el tipo de cambio de la API (Dólar Blue)
+  // 1. Al iniciar, recuperamos la moneda guardada o usamos 'usd'
+  currentCurrency = localStorage.getItem('selectedCurrency') || 'usd';
+  selector.value = currentCurrency;
+
   exchangeRate = await getExchangeRate();
 
   selector.addEventListener('change', (e) => {
     currentCurrency = e.target.value;
     
-    // Al cambiar la moneda, refrescamos toda la UI
+    // 2. GUARDAMOS la elección para que details.html la vea
+    localStorage.setItem('selectedCurrency', currentCurrency);
+    
     displayCoins(allCoins);
     displayGlobalStats();
   });
 }
-
 // Función de inicialización
 async function init() {
   // 1. Primero configuramos el tipo de cambio y el selector
