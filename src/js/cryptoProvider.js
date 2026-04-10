@@ -67,3 +67,28 @@ export async function getExchangeRate() {
     return 1000; // Valor de respaldo por si falla la API
   }
 }
+
+/**
+ * Obtiene los detalles específicos de una sola moneda por su ID.
+ */
+export async function getCoinDetails(id) {
+  try {
+    // Pedimos datos específicos, incluyendo market_data y descripción
+    const response = await fetch(`${BASE_URL}/coins/${id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=true`);
+    
+    if (!response.ok) {
+      throw new Error(`Error API Details: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Guardamos un backup específico para esta moneda (usando su ID como llave)
+    localStorage.setItem(`backup_coin_${id}`, JSON.stringify(data));
+    
+    return data;
+  } catch (error) {
+    console.warn(`Usando backup para la moneda: ${id}`);
+    const backup = localStorage.getItem(`backup_coin_${id}`);
+    return backup ? JSON.parse(backup) : null;
+  }
+}

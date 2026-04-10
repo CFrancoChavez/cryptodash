@@ -42,22 +42,6 @@ async function displayGlobalStats() {
   }
 }
 
-// async function displayCoins(coinsToRender) {
-//   const container = document.querySelector('#crypto-list');
-//   container.innerHTML = '';
-  
-//   if (coinsToRender.length === 0) {
-//     container.innerHTML = '<p class="no-results">No coins found matching your search.</p>';
-//     return;
-//   }
-
-//   // CORRECCIÓN: Pasamos la moneda y el rate al template en cada iteración
-//   const htmlItems = coinsToRender.map(coin => 
-//     cryptoCardTemplate(coin, currentCurrency, exchangeRate)
-//   );
-  
-//   container.insertAdjacentHTML('beforeend', htmlItems.join(''));
-// }
 async function displayCoins(coinsToRender) {
   const container = document.querySelector('#crypto-list');
   container.innerHTML = '';
@@ -110,13 +94,22 @@ function setupWatchlistEvents() {
 
   container.addEventListener('click', (e) => {
     const btn = e.target.closest('.favorite-btn');
-    if (!btn) return;
+    const card = e.target.closest('.crypto-card'); // Detectamos la tarjeta
 
-    const card = btn.closest('.crypto-card');
-    const coinId = card.dataset.id;
+    // 1. Lógica para el botón de favoritos (Watchlist)
+    if (btn) {
+      const coinId = card.dataset.id;
+      toggleFavorite(coinId);
+      btn.classList.toggle('active');
+      return; // Detenemos aquí para que no ejecute la navegación
+    }
 
-    toggleFavorite(coinId);
-    btn.classList.toggle('active');
+    // 2. Lógica para Navegación (Dynamic Detail Page)
+    // Si clickeó en la tarjeta pero NO era el botón de favoritos
+    if (card) {
+      const coinId = card.dataset.id;
+      window.location.href = `details.html?id=${coinId}`;
+    }
   });
 }
 
